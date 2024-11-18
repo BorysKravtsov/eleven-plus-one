@@ -1,5 +1,5 @@
-module.exports = {
-    images: {
-      domains: ['media.api-sports.io'],
-    },
-  }; 
+export default {
+  images: {
+    domains: ["media.api-sports.io"],
+  },
+};
