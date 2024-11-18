@@ -1,6 +1,7 @@
 import Image from "next/image";
 import styled from "styled-components";
 import { useSession, signIn, signOut } from "next-auth/react";
+import Link from "next/link";
 
 const StyledHeader = styled.header`
   background-color: #17111d;
@@ -53,16 +54,16 @@ export default function Header() {
     <StyledHeader className="header">
       <div className="container">
         <HeaderInner>
-          <a href="/">
+          <Link href="/">
             <Image src="/elevenPlusOne-logo.svg" alt="logo" width={30} height={30} />
-          </a>
+          </Link>
           <Navbar className="navbar">
             <NavbarButtons className="navbuttons">
               <li className="navbar__leagues">
-                <a href="/Leagues">Leagues</a>
+                <Link href="/Leagues">Leagues</Link>
               </li>
               <li className="navbar__favorites">
-                <a href="/favorites">Favorites</a>
+                <Link href="/favorites">Favorites</Link>
               </li>
               <li className="navbar__search">
                 <a href="#">

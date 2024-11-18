@@ -122,7 +122,7 @@ export default function MatchesList({ leagueIds }) {
         {Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => (
           <li key={leagueName}>
             <LeagueNameContainer>
-              <img
+              <Image
                 src={leagueMatches[0].league.logo}
                 alt={`${leagueName} logo`}
                 width={16}
