@@ -53,7 +53,7 @@ export default function Header() {
     <StyledHeader className="header">
       <div className="container">
         <HeaderInner>
-          <a href="#">
+          <a href="/">
             <Image src="/elevenPlusOne-logo.svg" alt="logo" width={30} height={30} />
           </a>
           <Navbar className="navbar">
@@ -62,7 +62,7 @@ export default function Header() {
                 <a href="/Leagues">Leagues</a>
               </li>
               <li className="navbar__favorites">
-                <a href="#">Favorites</a>
+                <a href="/favorites">Favorites</a>
               </li>
               <li className="navbar__search">
                 <a href="#">
