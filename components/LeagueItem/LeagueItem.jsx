@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getLeagues } from "../../utils/apiFootball";
 import Image from "next/image";
 import styled from "styled-components";
+import Link from "next/link";
 
 const LeagueHeading = styled.h2`
   margin-top: 10px;
@@ -81,14 +82,14 @@ export default function PopularLeagues({ leagueIds }) {
                 />
                 {league.league.name}
               </LinkToLeague>
-              <a href="#">
+              <Link href="#">
                 <Image
                   src="/notFavorite.svg"
                   alt="not favorite"
                   width={12}
                   height={12}
                 />
-              </a>
+              </Link>
             </StyledList>
           ))}
       </LeagueListContainer>

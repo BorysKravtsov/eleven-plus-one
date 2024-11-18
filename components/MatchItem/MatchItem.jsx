@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import { getMatchesByLeagueIds } from "../../utils/apiFootball";
+import Link from "next/link";
 const MatchesHeading = styled.h2`
   font-size: 24px;
   font-family: "Kanit", sans-serif;
@@ -139,7 +140,7 @@ export default function MatchesList({ leagueIds }) {
             </LeagueNameContainer>
             <ul>
               {leagueMatches.map((match) => (
-                <a href={`/match/${match.fixture.id}`} key={match.fixture.id}>
+                <Link href={`/match/${match.fixture.id}`} key={match.fixture.id}>
                   <MatchContainer>
                     <FavoriteButton>
                       <Image src="/notFavorite.svg" alt="favorite" width={22} height={22} />
@@ -173,7 +174,7 @@ export default function MatchesList({ leagueIds }) {
                     </TeamsContainer>
                   </MatchContainer>
                   <StyledHr />
-                </a>
+                </Link>
               ))}
             </ul>
           </li>
