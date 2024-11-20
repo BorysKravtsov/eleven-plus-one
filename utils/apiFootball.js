@@ -62,4 +62,44 @@ export const getMatchesByLeagueIds = async (leagueIds) => {
     throw error;
   }
 };
+
+export const getTeamLineups = async (fixtureId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/fixtures/lineups?fixture=${fixtureId}`, {
+      headers: {
+        'x-apisports-key': API_KEY,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.data.response) {
+      throw new Error('No lineups data found');
+    }
+
+    return response.data.response;
+  } catch (error) {
+    console.error('Error fetching team lineups:', error);
+    throw error;
+  }
+};
+
+export const getMatchScore = async (fixtureId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/fixtures/statistics?fixture=${fixtureId}`, {
+      headers: {
+        'x-apisports-key': API_KEY,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.data.response) {
+      throw new Error('No score data found');
+    }
+
+    return response.data.response;
+  } catch (error) {
+    console.error('Error fetching match score:', error);
+    throw error;
+  }
+};
   

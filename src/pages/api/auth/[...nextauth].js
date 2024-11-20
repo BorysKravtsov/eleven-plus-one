@@ -1,39 +1,56 @@
+import dbConnect from "@/pages/lib/connect";
+import User from "../../../../models/User";
 import NextAuth from "next-auth";
-import GitHubProvider from "next-auth/providers/github";
-import User from "./User";
-import connectToDatabase from "../../lib/db";
+import GithubProvider from "next-auth/providers/github";
 
-export default NextAuth({
+export const authOptions = {
   providers: [
-    GitHubProvider({
+    GithubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
+    async signIn({ profile }) {
+      try {
+        await dbConnect();
+        let user = await User.findOne({ email: profile.email });
+        if (!user) {
+          user = await User.create({
+            email: profile.email,
+            name: profile.name || "No Name",
+            username: profile.email.split("@")[0],
+            image: profile.avatar_url || profile.picture || "",
+          });
+        }
+        return true;
+      } catch (error) {
+        console.error("Error in signIn callback:", error);
+        return false;
+      }
+    },
+
+    async jwt({ token, profile }) {
+      if (profile) {
+        await dbConnect();
+        const user = await User.findOne({ email: profile.email });
+        if (user) {
+          token.id = user._id.toString();
+          console.log("JWT Token ID:", token.id);
+        }
       }
       return token;
     },
+
     async session({ session, token }) {
-      if (token) {
-        session.user.userId = token.id;
+      if (token?.id) {
+        session.user.id = token.id;
       }
+      console.log("Session Object:", session);
       return session;
     },
-    async signIn({ user, account, profile }) {
-      await connectToDatabase();
-      const existingUser = await User.findOne({ email: user.email });
-      if (!existingUser) {
-        await User.create({
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        });
-      }
-      return true;
-    },
   },
-});
+};
+
+export default NextAuth(authOptions);

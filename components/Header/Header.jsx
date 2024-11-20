@@ -11,7 +11,7 @@ const HeaderInner = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 90px;
+  height: 70px;
 `;
 
 const Navbar = styled.nav`
@@ -19,7 +19,7 @@ const Navbar = styled.nav`
   align-items: center;
   font-family: "Kanit", sans-serif;
   font-weight: 500;
-  font-size: 18px;
+  font-size: 16px;
 `;
 
 const NavbarButtons = styled.ul`
@@ -55,34 +55,20 @@ export default function Header() {
       <div className="container">
         <HeaderInner>
           <Link href="/">
-            <Image src="/elevenPlusOne-logo.svg" alt="logo" width={30} height={30} />
+            <Image
+              src="/elevenPlusOneLogo.svg"
+              alt="logo"
+              width={50}
+              height={50}
+            />
           </Link>
           <Navbar className="navbar">
             <NavbarButtons className="navbuttons">
               <li className="navbar__leagues">
-                <Link href="/Leagues">Leagues</Link>
+                <Link href="/leagues">Leagues</Link>
               </li>
               <li className="navbar__favorites">
                 <Link href="/favorites">Favorites</Link>
-              </li>
-              <li className="navbar__search">
-                <a href="#">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M13 13L19 19M8 15C4.13401 15 1 11.866 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8C15 11.866 11.866 15 8 15Z"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </a>
               </li>
               <li className="navbar__signup">
                 {session ? (

@@ -3,13 +3,16 @@ import styled from "styled-components";
 import Image from "next/image";
 import { getMatchesByLeagueIds } from "../../utils/apiFootball";
 import Link from "next/link";
+import axios from "axios";
+import FavoriteButton from "../FavoriteButton/FavoriteButton";
 const MatchesHeading = styled.h2`
   font-size: 24px;
   font-family: "Kanit", sans-serif;
   font-weight: 500;
   margin-top: 10px;
 `;
-const LeagueNameContainer = styled.h3`
+
+const LeagueNameContainer = styled(Link)`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -44,12 +47,6 @@ const MatchContainer = styled.div`
   &:hover {
     background-color: #251a2e;
   }
-`;
-
-const FavoriteButton = styled.button`
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
 `;
 
 const TeamLogo = styled.img`
@@ -116,13 +113,21 @@ export default function MatchesList({ leagueIds }) {
     return acc;
   }, {});
 
+  const handleFavoriteClick = async (match) => {
+    try {
+      await axios.post("/api/favorites", { matchId: match.id });
+    } catch (error) {
+      console.error("Ошибка при добавлении в избранное:", error);
+    }
+  };
+
   return (
     <MatchesContainer>
       <MatchesHeading>Fixtures</MatchesHeading>
       <MatchesListContainer>
         {Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => (
           <li key={leagueName}>
-            <LeagueNameContainer>
+            <LeagueNameContainer href={`/league/${leagueMatches[0].league.id}`}>
               <Image
                 src={leagueMatches[0].league.logo}
                 alt={`${leagueName} logo`}
@@ -131,7 +136,7 @@ export default function MatchesList({ leagueIds }) {
               />
               {leagueName} -{" "}
               {new Date(leagueMatches[0].fixture.date).toLocaleDateString(
-                "ru-RU",
+                "en-US",
                 {
                   day: "2-digit",
                   month: "2-digit",
@@ -140,11 +145,9 @@ export default function MatchesList({ leagueIds }) {
             </LeagueNameContainer>
             <ul>
               {leagueMatches.map((match) => (
-                <Link href={`/match/${match.fixture.id}`} key={match.fixture.id}>
+                <>
                   <MatchContainer>
-                    <FavoriteButton>
-                      <Image src="/notFavorite.svg" alt="favorite" width={22} height={22} />
-                    </FavoriteButton>
+                    <FavoriteButton matchId={match.fixture.id} />
                     <MatchTime>
                       {new Date(match.fixture.date).toLocaleTimeString(
                         "en-US",
@@ -155,26 +158,30 @@ export default function MatchesList({ leagueIds }) {
                         }
                       )}
                     </MatchTime>
-                    <TeamsContainer>
-                      <TeamContainer>
-                        <TeamLogo
-                          src={match.teams.home.logo}
-                          alt={`${match.teams.home.name} logo`}
-                        />
-                        <TeamName>{match.teams.home.name}</TeamName>
-                      </TeamContainer>
-
-                      <TeamContainer>
-                        <TeamLogo
-                          src={match.teams.away.logo}
-                          alt={`${match.teams.away.name} logo`}
-                        />
-                        <TeamName>{match.teams.away.name}</TeamName>
-                      </TeamContainer>
-                    </TeamsContainer>
+                    <Link
+                      href={`/match/${match.fixture.id}`}
+                      key={match.fixture.id}
+                    >
+                      <TeamsContainer>
+                        <TeamContainer>
+                          <TeamLogo
+                            src={match.teams.home.logo}
+                            alt={`${match.teams.home.name} logo`}
+                          />
+                          <TeamName>{match.teams.home.name}</TeamName>
+                        </TeamContainer>
+                        <TeamContainer>
+                          <TeamLogo
+                            src={match.teams.away.logo}
+                            alt={`${match.teams.away.name} logo`}
+                          />
+                          <TeamName>{match.teams.away.name}</TeamName>
+                        </TeamContainer>
+                      </TeamsContainer>
+                    </Link>
                   </MatchContainer>
                   <StyledHr />
-                </Link>
+                </>
               ))}
             </ul>
           </li>

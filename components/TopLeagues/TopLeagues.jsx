@@ -1,52 +1,69 @@
 import React, { useEffect, useState } from "react";
-import { getLeagues } from "../../utils/apiFootball";
-import Image from "next/image";
 import styled from "styled-components";
+import Image from "next/image";
+import { getLeagues } from "../../utils/apiFootball";
 import Link from "next/link";
 
-const LeagueHeading = styled.h2`
-  margin-top: 10px;
+
+
+const TopLeaguesHeading = styled.h2`
   font-size: 24px;
   font-family: "Kanit", sans-serif;
   font-weight: 500;
-`;
-
-const LinkToLeague = styled.a`
   display: flex;
-  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 13px;
 `;
 
 const LeagueContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  min-width: 170px;
+  gap: 10px;
+`;
+
+
+const LeagueListContainer = styled.ul`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  margin: 0 auto;
 `;
 
 const StyledList = styled.li`
   display: flex;
-  justify-content: space-between;
-  gap: 7px;
   align-items: center;
-  font-size: 12px;
-  max-width: 133px;
-  margin-top: 13px;
-  line-height: 100%;
-  width: 100%;
-  text-align: left;
-  font-size: 13px;
-  font-family: "Figtree", sans-serif;
+  gap: 10px;
+`;
+
+const LinkToLeague = styled(Link)`
+  text-decoration: none;
+  color: #fff;
+  font-size: 20px;  
+  font-family: "Kanit", sans-serif;
   font-weight: 500;
-`;
-
-const LeagueListContainer = styled.ul`
   background-color: #17111d;
-  padding: 15px  15px 28px;
-  border-radius: 4px;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex-direction: column;
+  min-width: 200px;
+  height: 250px;
+  justify-content: center;
+  &:hover {
+    scale: 1.05;
+    transition: all 0.3s ease;
+  }
 `;
 
-export default function LeagueItem({ leagueIds }) {
-  const [leagues, setLeagues] = useState([]);
+
+export default function TopLeagues({leagueIds}) {
+    const [leagues, setLeagues] = useState([]);
 
   useEffect(() => {
     const fetchLeagues = async () => {
@@ -60,16 +77,18 @@ export default function LeagueItem({ leagueIds }) {
 
     fetchLeagues();
   }, []);
-
   return (
-    <LeagueContainer>
-      <LeagueHeading>Leagues</LeagueHeading>
+    <div>
+      <div className="container">
+        <TopLeaguesHeading>Top Leagues</TopLeaguesHeading>
+        <LeagueContainer>
+
       <LeagueListContainer>
         {leagues
           .filter((league) => leagueIds.includes(league.league.id))
           .map((league) => (
             <StyledList key={league.league.id}>
-              <LinkToLeague href="#">
+              <LinkToLeague href={`/league/${league.league.id}`}>
                 <Image
                   src={
                     league.country.flag
@@ -77,22 +96,17 @@ export default function LeagueItem({ leagueIds }) {
                       : "/World_Flag_(2004).svg"
                   }
                   alt={league.league.name}
-                  width={16}
-                  height={16}
+                  width={50}
+                  height={50}
                 />
                 {league.league.name}
               </LinkToLeague>
-              <Link href="#">
-                <Image
-                  src="/notFavorite.svg"
-                  alt="not favorite"
-                  width={12}
-                  height={12}
-                />
-              </Link>
+              
             </StyledList>
           ))}
       </LeagueListContainer>
     </LeagueContainer>
+      </div>
+    </div>
   );
 }
