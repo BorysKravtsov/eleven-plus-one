@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from "react";
 import Header from "../../../components/Header/Header";
-import Matches from "../../../components/Matches/Matches";
+import FavoriteMatches from "../../../components/FavoriteMatches/FavoriteMatches";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
 export default function Favorites() {
-  const [view, setView] = useState("futureMatches");
-  const [matches, setMatches] = useState([]);
+  const { data: session } = useSession();
+  const [favoriteIds, setFavoriteIds] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchFavorites = async () => {
+    if (!session) return;
+    try {
+      const response = await axios.get("/api/favorites", {
+        params: { userId: session.user.id },
+      });
+      setFavoriteIds(response.data.favorites);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching favorite matches:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchFavorites = async () => {
-      try {
-        const response = await axios.get("/api/favorites");
-        setMatches(response.data.favorites);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching favorite matches:", error);
-      }
-    };
-
     fetchFavorites();
-  }, []);
-
-  const pastMatches = matches.filter(match => new Date(match.fixture.date) < new Date());
-  const futureMatches = matches.filter(match => new Date(match.fixture.date) >= new Date());
+  }, [session]);
 
   if (loading) return <div>Loading...</div>;
 
@@ -31,12 +32,7 @@ export default function Favorites() {
     <>
       <Header />
       <div className="container">
-        <div>
-          <button onClick={() => setView("pastMatches")}>Past Matches</button>
-          <button onClick={() => setView("futureMatches")}>Future Matches</button>
-        </div>
-        {view === "pastMatches" && <Matches matchesByRound={pastMatches} />}
-        {view === "futureMatches" && <Matches matchesByRound={futureMatches} />}
+        <FavoriteMatches matchIds={favoriteIds} />
       </div>
     </>
   );

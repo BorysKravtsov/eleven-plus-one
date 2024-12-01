@@ -1,53 +1,59 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import styled from "styled-components";
 
-const StyledFavoriteButton = styled.button``;
+const ButtonContainer = styled.div`
+  cursor: pointer;
+`;
 
-const FavoriteButton = ({ matchId }) => {
-  const { data: session, status } = useSession();
-  const userId = session?.user?.id;
+const FavoriteButton = ({ matchId, favoriteIds = [], setFavoriteIds }) => {
+  const { data: session } = useSession();
   const [isFavorite, setIsFavorite] = useState(false);
+  const userId = session?.user?.id?.toString();
 
   useEffect(() => {
-    console.log("Initial isFavorite:", isFavorite);
-  }, [userId, matchId]);
-
-  const handleFavoriteClick = async () => {
-    if (status === "loading") {
-      console.log("Loading session...");
-      return;
+    if (userId && Array.isArray(favoriteIds)) {
+      const isMatchFavorite = favoriteIds.includes(matchId);
+      setIsFavorite(isMatchFavorite);
     }
+  }, [favoriteIds, matchId, userId]);
 
-    if (!userId) {
-      console.error("User not logged in");
-      return;
-    }
+  const handleFavoriteToggle = async () => {
+    if (!userId || !Array.isArray(favoriteIds)) return;
 
     try {
-      if (isFavorite) {
-        await axios.delete("/api/favorites", { data: { userId, matchId } });
-      } else {
+      const updatedFavorites = [...favoriteIds];
+      const matchIndex = updatedFavorites.indexOf(matchId);
+
+      if (matchIndex === -1) {
+        updatedFavorites.push(matchId);
         await axios.patch("/api/favorites", { userId, matchId });
+      } else {
+        updatedFavorites.splice(matchIndex, 1);
+        await axios.delete("/api/favorites", { data: { userId, matchId } });
       }
+
+      if (typeof setFavoriteIds === "function") {
+        setFavoriteIds(updatedFavorites);
+      }
+
       setIsFavorite(!isFavorite);
-      console.log("Updated isFavorite:", !isFavorite);
     } catch (error) {
-      console.error("Error updating favorite", error);
+      console.error("Failed to update favorite status for match", matchId, error);
     }
   };
 
   return (
-    <StyledFavoriteButton onClick={handleFavoriteClick}>
+    <ButtonContainer onClick={handleFavoriteToggle}>
       <Image
         src={isFavorite ? "/favorite.svg" : "/notFavorite.svg"}
-        alt="favorite"
-        width={22}
-        height={22}
+        alt="Favorite Icon"
+        width={30}
+        height={30}
       />
-    </StyledFavoriteButton>
+    </ButtonContainer>
   );
 };
 

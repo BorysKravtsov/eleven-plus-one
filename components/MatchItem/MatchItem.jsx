@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Image from "next/image";
 import { getMatchesByLeagueIds } from "../../utils/apiFootball";
 import Link from "next/link";
-import axios from "axios";
 import FavoriteButton from "../FavoriteButton/FavoriteButton";
 const MatchesHeading = styled.h2`
   font-size: 24px;
@@ -88,7 +87,7 @@ const StyledHr = styled.hr`
   opacity: 0.1;
 `;
 
-export default function MatchesList({ leagueIds }) {
+export default function MatchesList({ leagueIds, favoriteIds }) {
   const [matches, setMatches] = useState([]);
 
   useEffect(() => {
@@ -112,14 +111,6 @@ export default function MatchesList({ leagueIds }) {
     acc[leagueName].push(match);
     return acc;
   }, {});
-
-  const handleFavoriteClick = async (match) => {
-    try {
-      await axios.post("/api/favorites", { matchId: match.id });
-    } catch (error) {
-      console.error("Ошибка при добавлении в избранное:", error);
-    }
-  };
 
   return (
     <MatchesContainer>
@@ -145,9 +136,12 @@ export default function MatchesList({ leagueIds }) {
             </LeagueNameContainer>
             <ul>
               {leagueMatches.map((match) => (
-                <>
-                  <MatchContainer>
-                    <FavoriteButton matchId={match.fixture.id} />
+                
+                  <MatchContainer key={match.fixture.id}>
+                    <FavoriteButton
+                      favoriteIds={favoriteIds}
+                      matchId={match.fixture.id}
+                    />
                     <MatchTime>
                       {new Date(match.fixture.date).toLocaleTimeString(
                         "en-US",
@@ -178,10 +172,10 @@ export default function MatchesList({ leagueIds }) {
                           <TeamName>{match.teams.away.name}</TeamName>
                         </TeamContainer>
                       </TeamsContainer>
-                    </Link>
+                    </Link> <StyledHr />
                   </MatchContainer>
-                  <StyledHr />
-                </>
+                 
+                
               ))}
             </ul>
           </li>

@@ -85,7 +85,7 @@ const StyledHr = styled.hr`
   opacity: 0.1;
 `;
 
-const Matches = ({ matchesByRound, reverseOrder = false }) => {
+const Matches = ({ favoriteIds, fetchFavorites, matchesByRound, reverseOrder = false }) => {
   const sortedRounds = Object.entries(matchesByRound).sort(([a], [b]) => {
     const numA = parseInt(a.match(/\d+/)[0], 10);
     const numB = parseInt(b.match(/\d+/)[0], 10);
@@ -102,9 +102,9 @@ const Matches = ({ matchesByRound, reverseOrder = false }) => {
               <Round>Round {roundNumber}</Round>
               <ul>
                 {matches.map((match) => (
-                  <Link href={`/match/${match.fixture.id}`} key={match.fixture.id}>
-                    <MatchContainer>
-                      <FavoriteButton matchId={match.fixture.id} />
+                  <>
+                  <MatchContainer>
+                      <FavoriteButton favoriteIds={favoriteIds} fetchFavorites={fetchFavorites} />
                       <MatchTime>
                         {new Date(match.fixture.date).toLocaleTimeString("en-US", {
                           hour: "2-digit",
@@ -112,6 +112,7 @@ const Matches = ({ matchesByRound, reverseOrder = false }) => {
                           hour12: false,
                         })}
                       </MatchTime>
+                        <Link href={`/match/${match.fixture.id}`} key={match.fixture.id}>
                       <TeamsContainer>
                         <TeamContainer>
                           <TeamLogo
@@ -128,6 +129,7 @@ const Matches = ({ matchesByRound, reverseOrder = false }) => {
                           <TeamName>{match.teams.away.name}</TeamName>
                         </TeamContainer>
                       </TeamsContainer>
+                        </Link>
                       <Score>
                         {match.fixture.status.short === "FT"
                           ? `${match.goals.home} - ${match.goals.away}`
@@ -135,7 +137,7 @@ const Matches = ({ matchesByRound, reverseOrder = false }) => {
                       </Score>
                     </MatchContainer>
                     <StyledHr />
-                  </Link>
+                    </>
                 ))}
               </ul>
             </li>
