@@ -47,6 +47,12 @@ const NavbarSignup = styled.a`
   }
 `;
 
+const LogoStyled = {
+  width: "50px",
+  height: "50px",
+
+};
+
 export default function Header() {
   const { data: session } = useSession();
 
@@ -55,12 +61,16 @@ export default function Header() {
       <div className="container">
         <HeaderInner>
           <Link href="/">
-            <Image
-              src="/elevenPlusOneLogo.svg"
+           
+              <Image
+                src="/elevenPlusOneLogo.svg"
               alt="logo"
               width={50}
-              height={50}
-            />
+                height={50}
+                style={LogoStyled}
+                priority
+              />
+            
           </Link>
           <Navbar className="navbar">
             <NavbarButtons className="navbuttons">

@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import Image from "next/image";
 
 const TableContainer = styled.div`
   margin: 20px 0;
@@ -34,9 +35,9 @@ const TableHeader = styled(TableRow)`
   font-weight: bold;
 `;
 
-const TeamLogo = styled.img`
-  width: 20px;
-  height: 20px;
+const TeamLogo = styled.div`
+  width: auto;
+  height: auto;
   margin-right: 10px;
 `;
 
@@ -46,6 +47,11 @@ const TeamNameCell = styled(TableCell)`
   justify-content: flex-start;
   flex: 3;
 `;
+
+const TeamLogoStyle = {
+  width: "16px",
+  height: "16px",
+};
 
 const Table = ({ data }) => {
   return (
@@ -65,7 +71,15 @@ const Table = ({ data }) => {
         <TableRow key={team.team.id}>
           <TableCell>{index + 1}</TableCell>
           <TeamNameCell>
-            <TeamLogo src={team.team.logo} alt={`${team.team.name} logo`} />
+            <TeamLogo>
+              <Image
+                src={team.team.logo}
+                alt={`${team.team.name} logo`}
+                width={16}
+                height={16}
+                style={TeamLogoStyle}
+              />
+            </TeamLogo>
             {team.team.name}
           </TeamNameCell>
           <TableCell>{team.all.played}</TableCell>
