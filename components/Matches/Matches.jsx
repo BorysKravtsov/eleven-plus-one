@@ -1,149 +1,83 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import Link from "next/link";
-import FavoriteButton from "../FavoriteButton/FavoriteButton";
+import styled from "styled-components";
 
-const MatchesContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%;
+const FavoriteIconStyle = {
+  width: "22px",
+  height: "22px",
+};
+
+const StyledFavoriteButton = styled.button`
+  background: transparent;
+  border: none;
+  cursor: pointer;
 `;
 
-const Round = styled.h3`
-  font-size: 18px;
-  font-family: "Figtree", sans-serif;
-  font-weight: 500;
-  margin-top: 10px;
-`;
+const FavoriteButton = ({ matchId }) => {
+  const { data: session, status } = useSession();
+  const userId = session?.user?.id;
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-const MatchesListContainer = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background-color: #17111d;
-  padding: 0 30px;
-  border-radius: 6px;
-`;
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!userId || !matchId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await axios.get(`/api/favorites?userId=${userId}`);
+        const isFav = response.data.favorites.some((fav) => fav.matchId === matchId);
+        setIsFavorite(isFav);
+      } catch (error) {
+        console.error("Ошибка при проверке избранного:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-const MatchContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 10px 5px;
-  transition: background-color 0.3s ease;
-  &:hover {
-    background-color: #251a2e;
-  }
-`;
+    if (userId) {
+      checkFavorite();
+    } else {
+      setLoading(false);
+    }
+  }, [userId, matchId]);
 
-const TeamLogo = styled.img`
-  width: 16px;
-  height: 16px;
-  margin-right: 10px;
-`;
+  const handleFavoriteClick = async () => {
+    if (status === "loading" || loading) return;
+    if (!userId) {
+      console.error("Пользователь не авторизован");
+      return;
+    }
 
-const MatchTime = styled.span`
-  width: 50px;
-  text-align: center;
-  margin-right: 10px;
-  font-size: 13px;
-  font-family: "Figtree", sans-serif;
-  font-weight: 500;
-`;
-
-const TeamsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const TeamContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const TeamName = styled.span`
-  flex: 1;
-  font-size: 13px;
-  font-family: "Figtree", sans-serif;
-  font-weight: 500;
-`;
-
-const Score = styled.div`
-  margin-left: auto;
-  margin-right: 10px;
-  font-family: "Figtree", sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-`;
-
-const StyledHr = styled.hr`
-  border: 1px solid #f0f3bd;
-  opacity: 0.1;
-`;
-
-const Matches = ({ matchesByRound, reverseOrder = false }) => {
-  const sortedRounds = Object.entries(matchesByRound).sort(([a], [b]) => {
-    const numA = parseInt(a.match(/\d+/)[0], 10);
-    const numB = parseInt(b.match(/\d+/)[0], 10);
-    return reverseOrder ? numB - numA : numA - numB;
-  });
+    try {
+      setLoading(true);
+      if (isFavorite) {
+        await axios.delete("/api/favorites", { data: { userId, matchId } });
+      } else {
+        await axios.patch("/api/favorites", { userId, matchId });
+      }
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error("Ошибка при изменении избранного:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <MatchesContainer>
-      <MatchesListContainer>
-        {sortedRounds.map(([round, matches]) => {
-          const roundNumber = round.match(/\d+/)[0];
-          return (
-            <li key={round}>
-              <Round>Round {roundNumber}</Round>
-              <ul>
-                {matches.map((match) => (
-                  <Link href={`/match/${match.fixture.id}`} key={match.fixture.id}>
-                    <MatchContainer>
-                      <FavoriteButton matchId={match.fixture.id} />
-                      <MatchTime>
-                        {new Date(match.fixture.date).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        })}
-                      </MatchTime>
-                      <TeamsContainer>
-                        <TeamContainer>
-                          <TeamLogo
-                            src={match.teams.home.logo}
-                            alt={`${match.teams.home.name} logo`}
-                          />
-                          <TeamName>{match.teams.home.name}</TeamName>
-                        </TeamContainer>
-                        <TeamContainer>
-                          <TeamLogo
-                            src={match.teams.away.logo}
-                            alt={`${match.teams.away.name} logo`}
-                          />
-                          <TeamName>{match.teams.away.name}</TeamName>
-                        </TeamContainer>
-                      </TeamsContainer>
-                      <Score>
-                        {match.fixture.status.short === "FT"
-                          ? `${match.goals.home} - ${match.goals.away}`
-                          : "-"}
-                      </Score>
-                    </MatchContainer>
-                    <StyledHr />
-                  </Link>
-                ))}
-              </ul>
-            </li>
-          );
-        })}
-      </MatchesListContainer>
-    </MatchesContainer>
+    <StyledFavoriteButton onClick={handleFavoriteClick} disabled={loading}>
+      <Image
+        src={isFavorite ? "/favorite.svg" : "/notFavorite.svg"}
+        alt="favorite"
+        width={22}
+        height={22}
+        style={FavoriteIconStyle}
+      />
+    </StyledFavoriteButton>
   );
 };
 
-export default Matches;
+export default FavoriteButton;

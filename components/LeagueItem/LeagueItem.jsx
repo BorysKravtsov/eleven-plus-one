@@ -11,6 +11,16 @@ const LeagueHeading = styled.h2`
   font-weight: 500;
 `;
 
+const FlagStyle = {
+  width: "16px",
+  height: "16px",
+};
+
+const FavoriteIconStyle = {
+  width: "12px",
+  height: "12px",
+};
+
 const LinkToLeague = styled.a`
   display: flex;
   gap: 5px;
@@ -79,6 +89,7 @@ export default function LeagueItem({ leagueIds }) {
                   alt={league.league.name}
                   width={16}
                   height={16}
+                  style={FlagStyle}
                 />
                 {league.league.name}
               </LinkToLeague>
@@ -88,6 +99,7 @@ export default function LeagueItem({ leagueIds }) {
                   alt="not favorite"
                   width={12}
                   height={12}
+                  style={FavoriteIconStyle}
                 />
               </Link>
             </StyledList>

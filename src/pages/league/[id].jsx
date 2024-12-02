@@ -8,6 +8,11 @@ import Link from "next/link";
 import Table from "../../../components/Table/Table";
 import Matches from "../../../components/Matches/Matches";
 
+const CountryFlagStyle = {
+  width: "25px",
+  height: "25px",
+};
+
 const LeagueHeader = styled.div`
   display: flex;
   align-items: center;
@@ -134,7 +139,7 @@ const LeagueDetails = () => {
       <div className="container">
       <ButtonContainer>
       <LeagueHeader>
-        <Image src={leagueDetails.country.flag} alt={leagueDetails.country.name} width={25} height={25} />
+        <Image src={leagueDetails.country.flag} alt={leagueDetails.country.name} width={25} height={25} style={CountryFlagStyle} />
         <h1>{leagueDetails.league.name}</h1>
       </LeagueHeader>
         <Button active={view === "pastMatches"} onClick={() => setView("pastMatches")}>Results</Button>

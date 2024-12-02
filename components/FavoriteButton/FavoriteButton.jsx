@@ -6,21 +6,33 @@ import styled from "styled-components";
 
 const StyledFavoriteButton = styled.button``;
 
+const FavoriteIconStyle = {
+  width: "22px",
+  height: "22px",
+};
+
 const FavoriteButton = ({ matchId }) => {
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    console.log("Initial isFavorite:", isFavorite);
+    const checkFavorite = async () => {
+      if (!userId || !matchId) return;
+      try {
+        const response = await axios.get(`/api/favorites?userId=${userId}`);
+        const isFav = response.data.favorites.some(fav => fav.matchId === matchId);
+        setIsFavorite(isFav);
+      } catch (error) {
+        console.error("Error checking favorite", error);
+      }
+    };
+
+    checkFavorite();
   }, [userId, matchId]);
 
   const handleFavoriteClick = async () => {
-    if (status === "loading") {
-      console.log("Loading session...");
-      return;
-    }
-
+    if (status === "loading") return;
     if (!userId) {
       console.error("User not logged in");
       return;
@@ -33,7 +45,6 @@ const FavoriteButton = ({ matchId }) => {
         await axios.patch("/api/favorites", { userId, matchId });
       }
       setIsFavorite(!isFavorite);
-      console.log("Updated isFavorite:", !isFavorite);
     } catch (error) {
       console.error("Error updating favorite", error);
     }
@@ -46,6 +57,7 @@ const FavoriteButton = ({ matchId }) => {
         alt="favorite"
         width={22}
         height={22}
+        style={FavoriteIconStyle}
       />
     </StyledFavoriteButton>
   );

@@ -4,8 +4,6 @@ import Image from "next/image";
 import { getLeagues } from "../../utils/apiFootball";
 import Link from "next/link";
 
-
-
 const TopLeaguesHeading = styled.h2`
   font-size: 24px;
   font-family: "Kanit", sans-serif;
@@ -16,6 +14,11 @@ const TopLeaguesHeading = styled.h2`
   gap: 10px;
   margin: 22px 0 13px;
 `;
+
+const LeagueFlagStyle = {
+  width: "50px",
+  height: "50px",
+};
 
 const LeagueContainer = styled.div`
   display: flex;
@@ -98,6 +101,7 @@ export default function TopLeagues({leagueIds}) {
                   alt={league.league.name}
                   width={50}
                   height={50}
+                  style={LeagueFlagStyle}
                 />
                 {league.league.name}
               </LinkToLeague>

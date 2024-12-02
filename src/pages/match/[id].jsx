@@ -100,6 +100,11 @@ const Score = styled.p`
   text-align: center;
 `;
 
+const TeamLogoStyle = {
+  width: "100px",
+  height: "100px",
+};
+
 const MatchDetails = () => {
   const router = useRouter();
   const { id } = router.query;
@@ -172,7 +177,7 @@ const MatchDetails = () => {
             <TeamsContainer>
               <TeamHome>
                 <TeamLogoContainer>
-                  <Image src={teams.home.logo} alt={teams.home.name} width={100} height={100} />
+                  <Image src={teams.home.logo} alt={teams.home.name} width={100} height={100} style={TeamLogoStyle} />
                 </TeamLogoContainer>
                 <TeamName>
                   {teams.home.name}
@@ -195,7 +200,7 @@ const MatchDetails = () => {
               
               <TeamAway>
                 <TeamLogoContainer>
-                  <Image src={teams.away.logo} alt={teams.away.name} width={100} height={100} />
+                  <Image src={teams.away.logo} alt={teams.away.name} width={100} height={100} style={TeamLogoStyle} />
                 </TeamLogoContainer>
                 <TeamName>
                   {teams.away.name}

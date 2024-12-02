@@ -5,6 +5,7 @@ import { getMatchesByLeagueIds } from "../../utils/apiFootball";
 import Link from "next/link";
 import axios from "axios";
 import FavoriteButton from "../FavoriteButton/FavoriteButton";
+
 const MatchesHeading = styled.h2`
   font-size: 24px;
   font-family: "Kanit", sans-serif;
@@ -12,15 +13,15 @@ const MatchesHeading = styled.h2`
   margin-top: 10px;
 `;
 
-const LeagueNameContainer = styled(Link)`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 22px 0 13px;
-  font-size: 14px;
-  font-family: "Kanit", sans-serif;
-  font-weight: 500;
-`;
+const LeagueLogo = {
+  width: "16px",
+  height: "16px",
+};
+
+const TeamLogo = {
+  width: "16px",
+  height: "16px",
+};
 
 const MatchesContainer = styled.div`
   display: flex;
@@ -47,12 +48,6 @@ const MatchContainer = styled.div`
   &:hover {
     background-color: #251a2e;
   }
-`;
-
-const TeamLogo = styled.img`
-  width: 16px;
-  height: 16px;
-  margin-right: 10px;
 `;
 
 const MatchTime = styled.span`
@@ -113,27 +108,33 @@ export default function MatchesList({ leagueIds }) {
     return acc;
   }, {});
 
-  const handleFavoriteClick = async (match) => {
-    try {
-      await axios.post("/api/favorites", { matchId: match.id });
-    } catch (error) {
-      console.error("Ошибка при добавлении в избранное:", error);
-    }
-  };
-
+  
   return (
     <MatchesContainer>
       <MatchesHeading>Fixtures</MatchesHeading>
       <MatchesListContainer>
         {Object.entries(matchesByLeague).map(([leagueName, leagueMatches]) => (
           <li key={leagueName}>
-            <LeagueNameContainer href={`/league/${leagueMatches[0].league.id}`}>
+            <Link
+              href={`/league/${leagueMatches[0].league.id}`}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                margin: "22px 0 13px",
+                fontSize: "14px",
+                fontFamily: "Kanit, sans-serif",
+                fontWeight: "500",
+              }}
+            >
               <Image
                 src={leagueMatches[0].league.logo}
                 alt={`${leagueName} logo`}
                 width={16}
                 height={16}
+                style={LeagueLogo}
               />
+              
               {leagueName} -{" "}
               {new Date(leagueMatches[0].fixture.date).toLocaleDateString(
                 "en-US",
@@ -142,10 +143,10 @@ export default function MatchesList({ leagueIds }) {
                   month: "2-digit",
                 }
               )}
-            </LeagueNameContainer>
+            </Link>
             <ul>
               {leagueMatches.map((match) => (
-                <>
+                <React.Fragment key={match.fixture.id}>
                   <MatchContainer>
                     <FavoriteButton matchId={match.fixture.id} />
                     <MatchTime>
@@ -164,16 +165,22 @@ export default function MatchesList({ leagueIds }) {
                     >
                       <TeamsContainer>
                         <TeamContainer>
-                          <TeamLogo
+                          <Image
                             src={match.teams.home.logo}
                             alt={`${match.teams.home.name} logo`}
+                            width={16}
+                            height={16}
+                            style={TeamLogo}
                           />
                           <TeamName>{match.teams.home.name}</TeamName>
                         </TeamContainer>
                         <TeamContainer>
-                          <TeamLogo
+                          <Image
                             src={match.teams.away.logo}
                             alt={`${match.teams.away.name} logo`}
+                            width={16}
+                            height={16}
+                            style={TeamLogo}
                           />
                           <TeamName>{match.teams.away.name}</TeamName>
                         </TeamContainer>
@@ -181,7 +188,7 @@ export default function MatchesList({ leagueIds }) {
                     </Link>
                   </MatchContainer>
                   <StyledHr />
-                </>
+                </React.Fragment>
               ))}
             </ul>
           </li>

@@ -1,5 +1,8 @@
 import dbConnect from "../lib/connect";
 import User from "../../../models/User";
+import Favorite from "../../../models/Favorite";
+import { response } from "express";
+import { ObjectId } from "mongodb";
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -7,54 +10,50 @@ export default async function handler(req, res) {
 
   await dbConnect();
 
-  if (method === "PATCH") {
-    try {
-      if (!userId || !matchId) {
-        return res
-          .status(400)
-          .json({ error: "User ID and Match ID are required" });
+  switch (method) {
+    case "GET":
+      try {
+        const {userId:userIdParam} = req.query;
+        const favorites = await Favorite.find({userId:new ObjectId(userIdParam)});
+        console.log({favorites, userIdParam});
+        
+        res.status(200).json({ favorites });
+      } catch (error) {
+        console.log(error);
+        
+        res.status(500).json({ error: "Internal Server Error" });
       }
+      break;
+    case "PATCH":
+      try {
+        if (!userId || !matchId) {
+          return res.status(400).json({ error: "User ID and Match ID are required" });
+        }
 
-      const user = await User.findById(userId);
+        const favorite = await Favorite.findOne({ userId, matchId });
+        if (!favorite) {
+          await Favorite.create({ userId, matchId });
+        }
 
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        res.status(200).json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
       }
+      break;
+    case "DELETE":
+      try {
+        if (!userId || !matchId) {
+          return res.status(400).json({ error: "User ID and Match ID are required" });
+        }
 
-      if (!user.favorites.includes(matchId)) {
-        user.favorites.push(matchId);
-        await user.save();
+        await Favorite.deleteOne({ userId, matchId });
+        res.status(200).json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
       }
-
-      return res.status(200).json({ success: true, favorites: user.favorites });
-    } catch (error) {
-      console.error("Error updating favorites:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  } else if (method === "DELETE") {
-    try {
-      if (!userId || !matchId) {
-        return res
-          .status(400)
-          .json({ error: "User ID and Match ID are required" });
-      }
-
-      const user = await User.findById(userId);
-
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      user.favorites = user.favorites.filter(id => id !== matchId);
-      await user.save();
-
-      return res.status(200).json({ success: true, favorites: user.favorites });
-    } catch (error) {
-      console.error("Error deleting favorite:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  } else {
-    res.setHeader("Allow", ["PATCH", "DELETE"]);
-    res.status(405).end(`Method ${method} Not Allowed`);
+      break;
+    default:
+      res.setHeader("Allow", ["GET", "PATCH", "DELETE"]);
+      res.status(405).end(`Method ${method} Not Allowed`);
   }
 }
